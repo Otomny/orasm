@@ -41,4 +41,4 @@ Pour déclencher le reload, il faut envoyer des requête POST sur des endpoints
 
 ### Tous les plugins ont été rebuild
 
-> localhost:6969/api/rebuilddone
+> localhost:6969/api/startserver
