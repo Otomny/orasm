@@ -1,0 +1,20 @@
+{
+  "name": "orasm",
+  "version": "1.0.0",
+  "description": "Outil de Rechargement Automatique de Serveur Minecraft",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/otomny_v2/tools/orasm.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/otomny_v2/tools/orasm/issues"
+  },
+  "homepage": "https://gitlab.com/otomny_v2/tools/orasm#readme"
+}
