@@ -1,4 +1,9 @@
+import { ChildProcessWithoutNullStreams, spawn } from "child_process";
+import { copyFileSync } from "fs";
+import path from "path";
+import { env } from "process";
 import NotImplemented from "../errors/NotImplemented";
+import { Config } from "../types";
 
 export default class ServerProcess {
   private static JARFILE_ARG = "%jarfile%";
@@ -8,21 +13,79 @@ export default class ServerProcess {
     "-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:-UseParallelGC -XX:-UseG1GC -XX:+UseZGC -XX:+AlwaysPreTouch -XX:InitiatingHeapOccupancyPercent=15" +
     ` -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar ${ServerProcess.JARFILE_ARG} nogui`;
 
-  constructor() {}
+  private config: Config;
+  private serverProcess: ChildProcessWithoutNullStreams;
+  public callbacks: Function[];
+  public askStart: boolean;
 
-  public setConfig(): void {
-    throw new NotImplemented("setConfig is not implemented");
+  constructor() {
+    this.askStart = false;
+    this.callbacks = [];
+  }
+
+  public setConfig(config: Config): void {
+    this.config = config;
+  }
+
+  public input(line: string): void {
+    this.serverProcess.stdin.write(line);
   }
 
   public stopProcess() {
-    throw new NotImplemented("stopProcess is not implemented.");
+    this.input("stop\n");
+    this.callbacks.push(() => {
+      this.serverProcess = undefined;
+      this.askStart = false;
+    });
   }
 
   public isStarted(): boolean {
-    throw new NotImplemented("isStarted is not implemented");
+    return this.serverProcess !== undefined;
+  }
+
+  private processClose(): void {
+    this.callbacks.forEach((callback) => callback());
+    this.callbacks = [];
   }
 
   public startProcess(): void {
-    throw new NotImplemented("startProcess is not implemented");
+    // spawn()
+    if (!this.config) {
+      throw new Error("Config has not been set");
+    }
+    const fullCommand = ServerProcess.command
+      .replace(ServerProcess.JARFILE_ARG, this.config.server.executable)
+      .split(" ");
+    const folder = this.config.server.folder;
+    const pluginFolder = path.join(folder, "plugins");
+    for (const pluginInfo of this.config.plugins) {
+      copyFileSync(pluginInfo.from, path.join(pluginFolder, pluginInfo.to));
+      console.log("Copied " + pluginInfo.name);
+    }
+    const serverProcess = spawn(fullCommand[0], fullCommand.slice(1), {
+      cwd: folder,
+      env: env,
+    });
+    serverProcess.stdout.on("data", (data) => {
+      const str = data.toString() as string;
+      process.stdout.write("[SO] " + str);
+      if (str.includes("Closing Thread Pool")) {
+        this.serverProcess.stdin.end();
+        this.serverProcess.stdout.destroy();
+        this.serverProcess.stderr.destroy();
+      }
+    });
+    serverProcess.stderr.on("data", (data) => {
+      process.stderr.write("[SE] " + data.toString());
+    });
+    serverProcess.on("exit", () => {
+      console.log("[SC] Server exited");
+    });
+    serverProcess.on("close", (err) => {
+      console.log("[SC] Server closed with status " + err);
+      this.processClose();
+    });
+
+    this.serverProcess = serverProcess;
   }
 }

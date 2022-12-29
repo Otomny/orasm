@@ -4,8 +4,8 @@
   "description": "Outil de Rechargement Automatique de Serveur Minecraft",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/index.js --test=1",
+    "test": "node dist/test.js",
+    "start": "node dist/index.js",
     "build": "tsc"
   },
   "repository": {
@@ -21,6 +21,7 @@
   "homepage": "https://gitlab.com/otomny_v2/tools/orasm#readme",
   "dependencies": {
     "express": "^4.18.2",
+    "jsonschema": "^1.4.1",
     "yargs": "^17.6.2"
   },
   "devDependencies": {

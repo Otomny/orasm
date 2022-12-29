@@ -1,3 +1,13 @@
 {
-    "$schema": "./config.schema.json"
+  "$schema": "./config.schema.json",
+  "server": {
+    "folder": "/var/server/dev",
+    "executable": "spigot.jar"
+  },
+  "plugins": [
+    {
+      "from": "/srv/dev/core/target/core.jar",
+      "to": "core.jar"
+    }
+  ]
 }
