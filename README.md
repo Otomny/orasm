@@ -2,6 +2,10 @@
 
 Outil de Rechargement Automatique de Serveur Minecraft
 
+Il faut déja le dossier serveur créer, l'EULA accepté, les repos git cloné etc...
+Ensuite, pour intégrer l'outil dans l'IDE, il suffit de setup des tâches de compilation et ajouter un envoie de requête HTTP
+au début pour stopper le serveur et à la fin pour redémarrer le serveur
+
 ## Requirements
 
 - Nodejs > 16.0
@@ -26,8 +30,18 @@ Pour déclencher le reload, il faut envoyer des requête POST sur des endpoints
 
 ### Arreter le serveur
 
-> localhost:6969/api/stopserver
+```shell
+# Windows:
+Invoke-WebRequest -Uri http://localhost:6969/api/stopserver -Method POST
+# Linux:
+curl http://localhost:6969/api/stopserver -X POST
+```
 
-### Tous les plugins ont été rebuild
+### Redémarrer le serveur (supprime les anciens plugins et copie les nouveaux)
 
-> localhost:6969/api/startserver
+```shell
+# Windows:
+Invoke-WebRequest -Uri http://localhost:6969/api/startserver -Method POST
+# Linux:
+curl http://localhost:6969/api/startserver -X POST
+```
