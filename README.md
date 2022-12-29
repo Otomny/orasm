@@ -11,24 +11,13 @@ Outil de Rechargement Automatique de Serveur Minecraft
 
 ```shell
 npm install
+npm run build
 ```
 
 ## Usage
 
 ```shell
-npm run start
-```
-
-Spécifier un dossier ou se trouve le serveur
-
-```shell
-npm run start -d C:\Otomny\ServerTest
-```
-
-Spécifier le fichier de configuration des plugins à déplacer
-
-```shell
-npm run start -cf C:\Otomny\Conf\orasm.json
+npm run start -- --config=D:\Otomny_V2\otomny_v2_git\orasm\config.json
 ```
 
 ## Event

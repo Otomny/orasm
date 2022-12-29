@@ -6,6 +6,7 @@
   },
   "plugins": [
     {
+      "name": "Core",
       "from": "/srv/dev/core/target/core.jar",
       "to": "core.jar"
     }

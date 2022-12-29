@@ -1,5 +1,5 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
-import { copyFileSync } from "fs";
+import { copyFileSync, unlinkSync } from "fs";
 import path from "path";
 import { env } from "process";
 import NotImplemented from "../errors/NotImplemented";
@@ -59,7 +59,9 @@ export default class ServerProcess {
     const folder = this.config.server.folder;
     const pluginFolder = path.join(folder, "plugins");
     for (const pluginInfo of this.config.plugins) {
-      copyFileSync(pluginInfo.from, path.join(pluginFolder, pluginInfo.to));
+      const finalPath = path.join(pluginFolder, pluginInfo.to);
+      unlinkSync(finalPath);
+      copyFileSync(pluginInfo.from, finalPath);
       console.log("Copied " + pluginInfo.name);
     }
     const serverProcess = spawn(fullCommand[0], fullCommand.slice(1), {
