@@ -73,7 +73,10 @@ export default class ServerProcess {
     serverProcess.stdout.on("data", (data) => {
       const str = data.toString() as string;
       process.stdout.write("[SO] " + str);
-      if (str.includes("Closing Thread Pool")) {
+      if (
+        str.includes("Closing Thread Pool") ||
+        str.includes("Flushing Chunk IO")
+      ) {
         this.serverProcess.stdin.end();
         this.serverProcess.stdout.destroy();
         this.serverProcess.stderr.destroy();
