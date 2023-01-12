@@ -2,5 +2,6 @@ node_modules/
 dist/
 *.json
 *.ps1
+*.sh
 !config.schema.json
 !config.example.json
