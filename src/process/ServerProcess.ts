@@ -2,7 +2,6 @@ import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { copyFileSync, existsSync, unlinkSync } from "fs";
 import path from "path";
 import { env } from "process";
-import NotImplemented from "../errors/NotImplemented";
 import { Config } from "../types";
 
 export default class ServerProcess {
@@ -11,20 +10,16 @@ export default class ServerProcess {
   public static command: string =
     "java -Xms512M -Xmx4G -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions " +
     "-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:-UseParallelGC -XX:-UseG1GC -XX:+UseZGC -XX:+AlwaysPreTouch -XX:InitiatingHeapOccupancyPercent=15" +
-    ` -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -jar ${ServerProcess.JARFILE_ARG} nogui`;
+    ` -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 --add-modules=jdk.incubator.vector -jar ${ServerProcess.JARFILE_ARG} nogui`;
 
-  private config: Config;
   private serverProcess: ChildProcessWithoutNullStreams;
+  public config: Config;
   public callbacks: Function[];
   public askStart: boolean;
 
   constructor() {
     this.askStart = false;
     this.callbacks = [];
-  }
-
-  public setConfig(config: Config): void {
-    this.config = config;
   }
 
   public input(line: string): void {
@@ -72,7 +67,7 @@ export default class ServerProcess {
     });
     serverProcess.stdout.on("data", (data) => {
       const str = data.toString() as string;
-      process.stdout.write("[SO] " + str);
+      process.stdout.write(`${[this.config.server.name ?? "SO"]} ${str}`);
       if (
         str.includes("Closing Thread Pool") ||
         str.includes("Flushing Chunk IO")
@@ -83,13 +78,17 @@ export default class ServerProcess {
       }
     });
     serverProcess.stderr.on("data", (data) => {
-      process.stderr.write("[SE] " + data.toString());
+      process.stderr.write(
+        `${[this.config.server.name ?? "SE"]} ${data.toString() as string}`
+      );
     });
     serverProcess.on("exit", () => {
-      console.log("[SC] Server exited");
+      console.log(`${[this.config.server.name ?? "SC"]} Server exited`);
     });
     serverProcess.on("close", (err) => {
-      console.log("[SC] Server closed with status " + err);
+      console.log(
+        `${[this.config.server.name ?? "SC"]} Server exited with status ${err}`
+      );
       this.processClose();
     });
 

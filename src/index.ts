@@ -3,9 +3,10 @@ import { existsSync, readFileSync } from "fs";
 import { validate } from "jsonschema";
 import process from "process";
 import yargs from "yargs/yargs";
+import NotImplemented from "./errors/NotImplemented";
 import ServerProcess from "./process/ServerProcess";
 import { lineReader } from "./reader";
-import { Config } from "./types";
+import { ConfigSingle, ConfigMultiple } from "./types";
 
 const schemaFile = "./config.schema.json";
 
@@ -25,53 +26,120 @@ const schemaBuffer = readFileSync(schemaFile, { encoding: "utf-8" });
 const schema = JSON.parse(schemaBuffer);
 
 const configBuffer = readFileSync(configFileLocation, { encoding: "utf-8" });
-const config = JSON.parse(configBuffer) as Config;
+const configTemp = JSON.parse(configBuffer);
 
-validate(config, schema, { throwError: true });
+validate(configTemp, schema, { throwError: true });
+const serversProcesses: ServerProcess[] = [];
 
-const serverProcess = new ServerProcess();
+const findProcess = (name: string): ServerProcess | undefined => {
+  for (const serverProcess of serversProcesses) {
+    if (serverProcess.config.server.name === name) {
+      return serverProcess;
+    }
+  }
+  return undefined;
+};
 
 const app = express();
+
+if (configTemp.single) {
+  const config = (configTemp as ConfigSingle).single;
+
+  const serverProcess = new ServerProcess();
+  serverProcess.config = config;
+  serversProcesses.push(serverProcess);
+} else if (configTemp.multiple) {
+  const multipleConfig = configTemp as ConfigMultiple;
+  for (const config of multipleConfig.multiple) {
+    const serverProcess = new ServerProcess();
+    serverProcess.config = config;
+    serversProcesses.push(serverProcess);
+    console.log("Registered server " + config.server.name);
+  }
+
+  app.post("/api/stopserver/:name", (req, res) => {
+    const { name } = req.params;
+    const serverProcess = findProcess(name);
+    if (serverProcess) {
+      if (serverProcess.isStarted()) {
+        serverProcess.stopProcess();
+      }
+      res.json({ msg: "Stopping server" });
+    } else {
+      res.status(400);
+      res.json({ msg: "Error, unknown process with this name" });
+    }
+  });
+
+  app.post("/api/startserver/:name", (req, res) => {
+    const { name } = req.params;
+    const serverProcess = findProcess(name);
+    if (serverProcess) {
+      if (!serverProcess.isStarted()) {
+        serverProcess.startProcess();
+      } else if (!serverProcess.askStart) {
+        serverProcess.callbacks.push(() => {
+          serverProcess.startProcess();
+          serverProcess.askStart = true;
+        });
+      }
+      res.json({ msg: "Starting server" });
+    } else {
+      res.status(400);
+      res.json({ msg: "Error, unknown process with this name" });
+    }
+  });
+} else {
+  throw new NotImplemented("Unknown json format");
+}
+
 const port = 6969;
 
 app.post("/api/stopserver", (req, res) => {
-  if (serverProcess.isStarted()) {
-    res.json({ msg: "Stopping server" });
-    serverProcess.stopProcess();
-  } else {
-    res.json({ msg: "No need for stop" });
+  for (const serverProcess of serversProcesses) {
+    if (serverProcess.isStarted()) {
+      serverProcess.stopProcess();
+    }
   }
+  res.json({ msg: "Stopping servers" });
 });
 
 app.post("/api/startserver", (req, res) => {
-  if (!serverProcess.isStarted()) {
-    res.json({ msg: "Starting server" });
-    serverProcess.startProcess();
-  } else if (!serverProcess.askStart) {
-    serverProcess.callbacks.push(() => {
+  for (const serverProcess of serversProcesses) {
+    if (!serverProcess.isStarted()) {
       serverProcess.startProcess();
-      serverProcess.askStart = true;
-    });
-    res.json({ msg: "Delayed start" });
-  } else {
-    res.json({ msg: "No need to restart" });
+    } else if (!serverProcess.askStart) {
+      serverProcess.callbacks.push(() => {
+        serverProcess.startProcess();
+        serverProcess.askStart = true;
+      });
+    }
   }
+  res.json({ msg: "Starting servers" });
 });
 
-serverProcess.setConfig(config);
-
 lineReader.on("line", (line) => {
-  if (serverProcess.isStarted()) {
-    if (line.includes("stop")) {
-      serverProcess.stopProcess();
-    } else {
-      serverProcess.input(line + "\n");
+  let serverProcess =
+    serversProcesses.length == 0
+      ? serversProcesses[0]
+      : findProcess(line.split(":")[0]);
+  if (serverProcess !== undefined) {
+    if (serverProcess.isStarted()) {
+      if (line.includes("stop")) {
+        serverProcess.stopProcess();
+      } else {
+        serverProcess.input(line.split(":")[1] + "\n");
+      }
     }
+  }else{
+    console.log(`Server process not found with name ${line.split(":")[0]}`)
   }
 });
 
 process.on("beforeExit", () => {
-  serverProcess.stopProcess();
+  for (const serverProcess of serversProcesses) {
+    serverProcess.stopProcess();
+  }
 });
 
 app.listen(port, () => {

@@ -5,10 +5,26 @@
   "description": "La configuration d'ORASM permet de spécifier le dossier du serveur, le fichier jar du serveur, les plugins a watch etc...",
   "type": "object",
   "properties": {
+    "single": {
+      "$ref": "#/$defs/single"
+    },
+    "multiple": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/single"
+      }
+    }
+  },
+  "oneOf": [{ "required": ["single"] }, { "required": ["multiple"] }],
+  "$defs": {
     "server": {
       "description": "Configuration du serveur",
       "type": "object",
       "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Z]+$"
+        },
         "folder": {
           "type": "string"
         },
@@ -37,7 +53,13 @@
         "required": ["name", "from", "to"]
       },
       "minLength": 0
+    },
+    "single": {
+      "type": "object",
+      "properties": {
+        "server": { "$ref": "#/$defs/server" },
+        "plugins": { "$ref": "#/$defs/plugins" }
+      }
     }
-  },
-  "required": ["server", "plugins"]
+  }
 }

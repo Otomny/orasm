@@ -1,0 +1,33 @@
+{
+  "$schema": "./config.schema.json",
+  "multiple": [
+    {
+      "server": {
+        "name": "HUB",
+        "folder": "/var/servers/hub",
+        "executable": "spigot.jar"
+      },
+      "plugins": [
+        {
+          "name": "Hub",
+          "from": "/srv/dev/hub/target/hub.jar",
+          "to": "hub.jar"
+        }
+      ]
+    },
+    {
+      "server": {
+        "name": "PROXY",
+        "folder": "/var/servers/proxy",
+        "executable": "velocity.jar"
+      },
+      "plugins": [
+        {
+          "name": "Proxy",
+          "from": "/srv/dev/proxy/target/proxy.jar",
+          "to": "proxy.jar"
+        }
+      ]
+    }
+  ]
+}

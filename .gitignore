@@ -5,3 +5,4 @@ dist/
 *.sh
 !config.schema.json
 !config.example.json
+!config.multiple.example.json

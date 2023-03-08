@@ -1,5 +1,6 @@
 export interface Config {
   server: {
+    name?: string | undefined;
     folder: string;
     executable: string;
   };
@@ -8,4 +9,12 @@ export interface Config {
     to: string;
     name: string;
   }[];
+}
+
+export interface ConfigSingle {
+  single: Config;
+}
+
+export interface ConfigMultiple {
+  multiple: Config[];
 }
