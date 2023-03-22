@@ -59,7 +59,8 @@
       "properties": {
         "server": { "$ref": "#/$defs/server" },
         "plugins": { "$ref": "#/$defs/plugins" }
-      }
+      },
+      "required": ["server", "plugins"]
     }
   }
 }

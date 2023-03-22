@@ -120,7 +120,7 @@ app.post("/api/startserver", (req, res) => {
 
 lineReader.on("line", (line) => {
   let serverProcess =
-    serversProcesses.length == 0
+    serversProcesses.length == 1
       ? serversProcesses[0]
       : findProcess(line.split(":")[0]);
   if (serverProcess !== undefined) {
