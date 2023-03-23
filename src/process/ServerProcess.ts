@@ -6,11 +6,12 @@ import { Config } from "../types";
 
 export default class ServerProcess {
   private static JARFILE_ARG = "%jarfile%";
+  private static ADDITIONAL_ARG = "%additional%";
 
   public static command: string =
     "java -Xms512M -Xmx4G -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions " +
     "-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:-UseParallelGC -XX:-UseG1GC -XX:+UseZGC -XX:+AlwaysPreTouch -XX:InitiatingHeapOccupancyPercent=15" +
-    ` -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 --add-modules=jdk.incubator.vector -jar ${ServerProcess.JARFILE_ARG} nogui`;
+    ` -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 --add-modules=jdk.incubator.vector ${ServerProcess.ADDITIONAL_ARG}  -jar ${ServerProcess.JARFILE_ARG} nogui`;
 
   private serverProcess: ChildProcessWithoutNullStreams;
   public config: Config;
@@ -49,8 +50,10 @@ export default class ServerProcess {
       throw new Error("Config has not been set");
     }
     const fullCommand = ServerProcess.command
+      .replace(ServerProcess.ADDITIONAL_ARG, this.config.runtimeSettings?.vmArgs ?? "")
       .replace(ServerProcess.JARFILE_ARG, this.config.server.executable)
-      .split(" ");
+      .split(/\s+/);
+    console.log(fullCommand)
     const folder = this.config.server.folder;
     const pluginFolder = path.join(folder, "plugins");
     for (const pluginInfo of this.config.plugins) {

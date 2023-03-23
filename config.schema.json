@@ -54,11 +54,20 @@
       },
       "minLength": 0
     },
+    "runtimeSettings": {
+      "type": "object",
+      "properties": {
+        "vmArgs": {
+          "type": "string"
+        }
+      }
+    },
     "single": {
       "type": "object",
       "properties": {
         "server": { "$ref": "#/$defs/server" },
-        "plugins": { "$ref": "#/$defs/plugins" }
+        "plugins": { "$ref": "#/$defs/plugins" },
+        "runtimeSettings": { "$ref": "#/$defs/runtimeSettings" }
       },
       "required": ["server", "plugins"]
     }

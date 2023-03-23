@@ -8,7 +8,10 @@ export interface Config {
     from: string;
     to: string;
     name: string;
-  }[];
+  }[],
+  runtimeSettings: {
+    vmArgs: string | undefined;
+  };
 }
 
 export interface ConfigSingle {
