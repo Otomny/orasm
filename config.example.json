@@ -1,8 +1,9 @@
 {
   "$schema": "./config.schema.json",
+  "executable": "E:\\Otomny\\Tools\\AmazonCorretto17\\bin\\java.exe",
   "single": {
     "server": {
-      "name": "core",
+      "name": "CORE",
       "folder": "/var/server/dev",
       "executable": "spigot.jar"
     },

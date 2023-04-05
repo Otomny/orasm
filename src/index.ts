@@ -41,17 +41,26 @@ const findProcess = (name: string): ServerProcess | undefined => {
 };
 
 const app = express();
+let customExecutable: string | undefined = configTemp.executable
+if(customExecutable){
+  if(!existsSync(customExecutable)){
+    console.error(`Unable to find executable ${customExecutable}, switched to default`)
+    customExecutable = undefined
+  }
+}
 
 if (configTemp.single) {
   const config = (configTemp as ConfigSingle).single;
 
   const serverProcess = new ServerProcess();
+  serverProcess.executable = customExecutable;
   serverProcess.config = config;
   serversProcesses.push(serverProcess);
 } else if (configTemp.multiple) {
   const multipleConfig = configTemp as ConfigMultiple;
   for (const config of multipleConfig.multiple) {
     const serverProcess = new ServerProcess();
+    serverProcess.executable = customExecutable;
     serverProcess.config = config;
     serversProcesses.push(serverProcess);
     console.log("Registered server " + config.server.name);

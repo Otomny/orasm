@@ -13,6 +13,10 @@
       "items": {
         "$ref": "#/$defs/single"
       }
+    },
+    "executable": {
+      "type": "string",
+      "$comment": "Référence vers un executable Java qui va être pris en compte lors de l'execution du programme"
     }
   },
   "oneOf": [{ "required": ["single"] }, { "required": ["multiple"] }],
