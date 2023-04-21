@@ -61,6 +61,10 @@
     "runtimeSettings": {
       "type": "object",
       "properties": {
+        "ram": {
+          "type": "string",
+          "pattern": "-Xms(\\d+)(M|G)\\s-Xmx(\\d+)(M|G)"
+        },
         "vmArgs": {
           "type": "string"
         }

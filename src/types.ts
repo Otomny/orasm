@@ -11,6 +11,7 @@ export interface Config {
   }[],
   runtimeSettings: {
     vmArgs: string | undefined;
+    ram: string | undefined
   };
 }
 

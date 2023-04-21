@@ -42,8 +42,8 @@ const findProcess = (name: string): ServerProcess | undefined => {
 
 const app = express();
 let customExecutable: string | undefined = configTemp.executable
-if(customExecutable){
-  if(!existsSync(customExecutable)){
+if (customExecutable) {
+  if (!existsSync(customExecutable)) {
     console.error(`Unable to find executable ${customExecutable}, switched to default`)
     customExecutable = undefined
   }
@@ -86,12 +86,13 @@ if (configTemp.single) {
     if (serverProcess) {
       if (!serverProcess.isStarted()) {
         serverProcess.startProcess();
-      } else if (!serverProcess.askStart) {
-        serverProcess.callbacks.push(() => {
-          serverProcess.startProcess();
-          serverProcess.askStart = true;
-        });
       }
+      //  else if (!serverProcess.askStart) {
+      //   serverProcess.callbacks.push(() => {
+      //     serverProcess.startProcess();
+      //     serverProcess.askStart = true;
+      //   });
+      // }
       res.json({ msg: "Starting server" });
     } else {
       res.status(400);
@@ -140,7 +141,7 @@ lineReader.on("line", (line) => {
         serverProcess.input(line.split(":")[1] + "\n");
       }
     }
-  }else{
+  } else {
     console.log(`Server process not found with name ${line.split(":")[0]}`)
   }
 });

@@ -8,9 +8,10 @@ export default class ServerProcess {
   private static JARFILE_ARG = "%jarfile%";
   private static ADDITIONAL_ARG = "%additional%";
   private static EXECUTABLE = "%executable%";
+  private static RAM_SETTINGS = "%ram%"
 
   public static command: string =
-    `${ServerProcess.EXECUTABLE} -Xms512M -Xmx4G -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions ` +
+    `${ServerProcess.EXECUTABLE} ${ServerProcess.RAM_SETTINGS} -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions ` +
     "-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:-UseParallelGC -XX:-UseG1GC -XX:+UseZGC -XX:+AlwaysPreTouch -XX:InitiatingHeapOccupancyPercent=15" +
     ` -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 --add-modules=jdk.incubator.vector ${ServerProcess.ADDITIONAL_ARG}  -jar ${ServerProcess.JARFILE_ARG} nogui`;
 
@@ -54,6 +55,7 @@ export default class ServerProcess {
     const fullCommand = ServerProcess.command
       .replace(ServerProcess.EXECUTABLE, this.executable ?? "java")
       .replace(ServerProcess.ADDITIONAL_ARG, this.config.runtimeSettings?.vmArgs ?? "")
+      .replace(ServerProcess.RAM_SETTINGS, this.config.runtimeSettings.ram ?? "-Xms512M -Xmx2G")
       .replace(ServerProcess.JARFILE_ARG, this.config.server.executable)
       .split(/\s+/);
     console.log(`[${this.config.server.name ?? "SO"}] = LAUNCH > ${fullCommand.join(' ')}`)

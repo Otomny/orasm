@@ -27,7 +27,10 @@
           "from": "/srv/dev/proxy/target/proxy.jar",
           "to": "proxy.jar"
         }
-      ]
+      ],
+      "runtimeSettings": {
+        "ram": "-Xms1G -Xmx1G"
+      }
     }
   ]
 }
