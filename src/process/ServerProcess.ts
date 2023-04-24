@@ -55,7 +55,7 @@ export default class ServerProcess {
     const fullCommand = ServerProcess.command
       .replace(ServerProcess.EXECUTABLE, this.executable ?? "java")
       .replace(ServerProcess.ADDITIONAL_ARG, this.config.runtimeSettings?.vmArgs ?? "")
-      .replace(ServerProcess.RAM_SETTINGS, this.config.runtimeSettings.ram ?? "-Xms512M -Xmx2G")
+      .replace(ServerProcess.RAM_SETTINGS, this.config.runtimeSettings?.ram ?? "-Xms512M -Xmx2G")
       .replace(ServerProcess.JARFILE_ARG, this.config.server.executable)
       .split(/\s+/);
     console.log(`[${this.config.server.name ?? "SO"}] = LAUNCH > ${fullCommand.join(' ')}`)
