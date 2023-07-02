@@ -38,6 +38,9 @@
         "ssh": {
           "type": "object",
           "properties": {
+            "user": {
+              "type": "string"
+            },
             "host": {
               "type": "string",
               "format": "ipv4"
