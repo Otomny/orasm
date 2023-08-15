@@ -20,43 +20,35 @@
     },
     "remoteServer": {
       "properties": {
-        "raw": {
-          "type": "object",
-          "properties": {
-            "ip": {
-              "type": "string",
-              "format": "ipv4"
-            },
-            "user": {
-              "type": "string"
-            },
-            "password": {
-              "type": "string"
-            }
-          }
+        "host": {
+          "type": "string"
         },
-        "ssh": {
-          "type": "object",
-          "properties": {
-            "user": {
-              "type": "string"
-            },
-            "host": {
-              "type": "string",
-              "format": "ipv4"
-            },
-            "keyFile": {
-              "type": "string"
-            }
-          }
+        "port": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "user": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "sshKeyFile": {
+          "type": "string"
+        },
+        "os": {
+          "type": "string",
+          "enum": ["windows", "linux", "macos"],
+          "default": "linux"
         }
       },
       "oneOf": [
         {
-          "required": ["raw"]
+          "required": ["ip", "user", "password"]
         },
         {
-          "required": ["ssh"]
+          "required": ["ip", "user", "sshKeyFile"]
         }
       ]
     }

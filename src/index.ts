@@ -7,6 +7,7 @@ import NotImplemented from "./errors/NotImplemented";
 import ServerProcess from "./process/ServerProcess";
 import { lineReader } from "./reader";
 import { ConfigSingle, ConfigMultiple } from "./types";
+import { createAccessor } from "./access/AccessorFactory";
 
 const schemaFile = "./config.schema.json";
 
@@ -49,21 +50,29 @@ if (customExecutable) {
   }
 }
 
-if (configTemp.single) {
-  const config = (configTemp as ConfigSingle).single;
 
-  const serverProcess = new ServerProcess();
+
+if (configTemp.single) {
+  const config  = configTemp as ConfigSingle
+  const serverConfig = config.single;
+  const accessor = createAccessor(config);
+
+  const serverProcess = new ServerProcess(accessor);
   serverProcess.executable = customExecutable;
-  serverProcess.config = config;
+  serverProcess.config = serverConfig;
   serversProcesses.push(serverProcess);
 } else if (configTemp.multiple) {
   const multipleConfig = configTemp as ConfigMultiple;
+  const accessor = createAccessor(multipleConfig);
+  
   for (const config of multipleConfig.multiple) {
-    const serverProcess = new ServerProcess();
+    
+    const serverProcess = new ServerProcess(accessor);
     serverProcess.executable = customExecutable;
     serverProcess.config = config;
     serversProcesses.push(serverProcess);
     console.log("Registered server " + config.server.name);
+    
   }
 
   app.post("/api/stopserver/:name", (req, res) => {
@@ -80,19 +89,13 @@ if (configTemp.single) {
     }
   });
 
-  app.post("/api/startserver/:name", (req, res) => {
+  app.post("/api/startserver/:name", async (req, res) => {
     const { name } = req.params;
     const serverProcess = findProcess(name);
     if (serverProcess) {
       if (!serverProcess.isStarted()) {
-        serverProcess.startProcess();
+        await serverProcess.startProcess();
       }
-      //  else if (!serverProcess.askStart) {
-      //   serverProcess.callbacks.push(() => {
-      //     serverProcess.startProcess();
-      //     serverProcess.askStart = true;
-      //   });
-      // }
       res.json({ msg: "Starting server" });
     } else {
       res.status(400);
